@@ -262,9 +262,23 @@ function import_or_kill_data() {
 	$page = sanitize_text_field( wp_unslash( $_POST['slug'] ) );
 
 	if ( ! empty( $_POST['cancel'] ) ) {
+		/**
+		 * Trigger the cancel/delete process for a CSV import.
+		 *
+		 * @param \WP_Post $post Post object for the CSV data.
+		 * @param string   $page The current import page, which contains the
+		 *                       importer slug.
+		 */
 		do_action( 'csv_import_framework_delete_data', $post, $page );
 		$msg = 'cancel';
 	} elseif ( ! empty( $_POST['import'] ) ) {
+		/**
+		 * Trigger the import process for a CSV import.
+		 *
+		 * @param \WP_Post $post Post object for the CSV data.
+		 * @param string   $page The current import page, which contains the
+		 *                       importer slug.
+		 */
 		do_action( 'csv_import_framework_import_data', $post, $page );
 		$msg = 'success';
 	}

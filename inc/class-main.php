@@ -73,8 +73,25 @@ class Main {
 		 *     Array of registered importers. The following args are for each
 		 *     individual importer.
 		 *
-		 *     @type string $name Custom importer name.
-		 *     @type string $slug Custom importer slug.
+		 *     @type string   $name             Custom importer name.
+		 *     @type string   $slug             Custom importer slug.
+		 *     @type string   $capability       Optional. Capability required to run
+		 *                                      this import. Defaults to
+		 *                                      'manage_csv_imports', which requires
+		 *                                      the ability to edit_posts and
+		 *                                      upload_files.
+		 *     @type callable $preview_callback Optional. Callback for previewing the
+		 *                                      data. Defaults to rendering an HTML
+		 *                                      table.
+		 *     @type callable $cancel_callback  Optional. Callback for cancelling the
+		 *                                      import. Regardless of passing a
+		 *                                      callable here or not, the data is
+		 *                                      deleted after this fires (though that
+		 *                                      can be unhooked if desired).
+		 *     @type callable $import_callback  Callback for importing the data. If
+		 *                                      nothing is passed here or hooked into
+		 *                                      the action itself, the importer is
+		 *                                      useless.
 		 * }
 		 */
 		return apply_filters( 'csv_import_framework_register_importers', [] );

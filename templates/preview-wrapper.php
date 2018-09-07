@@ -21,7 +21,14 @@
 			<?php submit_button( __( 'Cancel', 'csv-import-framework' ), 'delete', 'cancel', false ); ?>
 		</p>
 
-		<?php do_action( 'csv_import_framework_preview', $post ); ?>
+		<?php
+		/**
+		 * Trigger the preview for an importer.
+		 *
+		 * @param \WP_Post $post Post object for the CSV data.
+		 */
+		do_action( 'csv_import_framework_preview', $post );
+		?>
 
 		<p class="submit">
 			<?php submit_button( __( 'Import Content', 'csv-import-framework' ), 'primary', 'import', false ); ?>
