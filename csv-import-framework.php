@@ -13,3 +13,18 @@
  */
 
 namespace CSV_Import_Framework;
+
+define( __NAMESPACE__ . '\PATH', dirname( __FILE__ ) );
+define( __NAMESPACE__ . '\URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
+
+// Main plugin controller.
+require_once __DIR__ . '/inc/class-main.php';
+
+// Data Structures.
+require_once __DIR__ . '/inc/data-structures.php';
+
+// Admin pages.
+require_once __DIR__ . '/inc/admin.php';
+
+// UI Controller.
+require_once __DIR__ . '/inc/ui-controller.php';
