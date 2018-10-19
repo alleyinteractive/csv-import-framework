@@ -65,64 +65,78 @@ add_filter(
 
 ### Importer Arguments
 
-_String_ `$name` Custom importer name.
-_String_ `$slug` Custom importer slug.
-_String_ `$capability` Optional. Capability required to run this import. Defaults to 'manage_csv_imports', which requires the ability to edit_posts and upload_files.
-_Callable_ `$preview_callback` Optional. Callback for previewing the data. Defaults to rendering an HTML table.
-_Callable_ `$cancel_callback` Optional. Callback for cancelling the import. Regardless of passing a callable here or not, the data is deleted after this fires (though that can be unhooked if desired).
-_Callable_ `$import_callback` Callback for importing the data. If nothing is passed here or hooked into the action itself, the importer is useless.
+* _String_ `$name` Custom importer name.
+* _String_ `$slug` Custom importer slug.
+* _String_ `$capability` Optional. Capability required to run this import. Defaults to 'manage_csv_imports', which requires the ability to edit_posts and upload_files.
+* _Callable_ `$preview_callback` Optional. Callback for previewing the data. Defaults to rendering an HTML table.
+* _Callable_ `$cancel_callback` Optional. Callback for cancelling the import. Regardless of passing a callable here or not, the data is deleted after this fires (though that can be unhooked if desired).
+* _Callable_ `$import_callback` Callback for importing the data. If nothing is passed here or hooked into the action itself, the importer is useless.
 
 ### Actions and Filters
 
-**Action** `csv_import_framework_import_data`: Trigger the import process for a batch of rows from the CSV import.
+#### Action `csv_import_framework_import_data`
 
-#### Params
+Trigger the import process for a batch of rows from the CSV import.
+
+##### Params
 
 * `array`    `$rows`     Rows of CSV data.
 * `array`    `$header`   Header rows from CSV data.
 * `CSV_Post` `$csv_post` CSV Post object.
 
 
-**Action** `csv_import_framework_complete_import`: Mark the import as completed.
+#### Action `csv_import_framework_complete_import`
 
-#### Params
+Mark the import as completed.
+
+##### Params
 
 * `WP_Post` `$post` WP_Post object for the CSV data.
 
 
-**Action** `csv_import_framework_cancel_import`: Trigger the cancel/delete process for a CSV import.
+#### Action `csv_import_framework_cancel_import`
 
-#### Params
+Trigger the cancel/delete process for a CSV import.
+
+##### Params
 
 * `\WP_Post` `$post` Post object for the CSV data.
 * `string`   `$page` The current import page, which contains the importer slug.
 
 
-**Filter** `csv_import_framework_preview`: Trigger the preview for an importer.
+#### Filter `csv_import_framework_preview`
 
-#### Params
+Trigger the preview for an importer.
+
+##### Params
 
 * `\WP_Post` `$post` Post object for the CSV data.
 
 
-**Filter** `csv_import_framework_register_importers`: Filter the list of registered importers.
+#### Filter `csv_import_framework_register_importers`
 
-#### Params
+Filter the list of registered importers.
+
+##### Params
 
 * `array` `$importers` Array of registered importers. See above for importer args.
 
 
-**Filter** `csv_import_framework_cron_batch_size`: Set the batch size that imports use.
+#### Filter `csv_import_framework_cron_batch_size`
 
-#### Params
+Set the batch size that imports use.
+
+##### Params
 
 * `int`    `$batch_size` Import batch size.
 * `string` `$importer`   Importer slug.
 
 
-**Filter** `csv_import_framework_pre_save_data`: Filter the processed CSV data before saving.
+#### Filter `csv_import_framework_pre_save_data`
 
-#### Params
+Filter the processed CSV data before saving.
+
+##### Params
 
 * `array` `$json` CSV data ready to be converted to JSON.
 * `array` `$file` Uploaded file.
