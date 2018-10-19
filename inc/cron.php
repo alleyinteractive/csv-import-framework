@@ -10,14 +10,21 @@ namespace CSV_Import_Framework;
 /**
  * Run the importer cron task.
  *
- * @param int $csv_id Post ID of the stored CSV data.
+ * @param int $csv_id  Post ID of the stored CSV data.
+ * @param int $user_id ID of user who triggered this process.
  */
-function cron_runner( $csv_id ) {
+function cron_runner( $csv_id, $user_id ) {
 	$csv_post = CSV_Post::load( $csv_id );
 	if ( ! $csv_post ) {
 		// Log the error.
 		return;
 	}
+
+	// Backup the current user.
+	$previous_user_id = get_current_user_id();
+
+	// Set the current user to the user who triggered the import.
+	wp_set_current_user( $user_id );
 
 	// Load and validate the importer, as well as hook in the callbacks.
 	$importer = load_importer( $csv_post->get_importer_slug() );
@@ -63,6 +70,8 @@ function cron_runner( $csv_id ) {
 		 */
 		do_action( 'csv_import_framework_complete_import', $csv_post->get_post() );
 	}
+
+	wp_set_current_user( $previous_user_id );
 }
 
 /**
@@ -71,8 +80,8 @@ function cron_runner( $csv_id ) {
  * @param int $csv_id Post ID of the stored CSV data.
  */
 function schedule_runner( $csv_id ) {
-	if ( ! wp_next_scheduled( CRON_ACTION, [ $csv_id ] ) ) {
-		wp_schedule_single_event( time() + 5, CRON_ACTION, [ $csv_id ] );
+	if ( ! wp_next_scheduled( CRON_ACTION, [ $csv_id, get_current_user_id() ] ) ) {
+		wp_schedule_single_event( time() + 5, CRON_ACTION, [ $csv_id, get_current_user_id() ] );
 	}
 }
 
@@ -82,9 +91,9 @@ function schedule_runner( $csv_id ) {
  * @param int $csv_id Post ID of the stored CSV data.
  */
 function unschedule_runner( $csv_id ) {
-	$timestamp = wp_next_scheduled( CRON_ACTION, [ $csv_id ] );
+	$timestamp = wp_next_scheduled( CRON_ACTION, [ $csv_id, get_current_user_id() ] );
 	if ( $timestamp ) {
-		wp_unschedule_event( $timestamp, CRON_ACTION, [ $csv_id ] );
+		wp_unschedule_event( $timestamp, CRON_ACTION, [ $csv_id, get_current_user_id() ] );
 	}
 }
 

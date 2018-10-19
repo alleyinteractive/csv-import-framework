@@ -51,5 +51,5 @@ add_action( 'csv_import_framework_cancel_import', __NAMESPACE__ . '\delete_csv_p
 add_action( 'csv_import_framework_complete_import', __NAMESPACE__ . '\delete_csv_post', 100 );
 add_action( 'admin_post_' . UPLOAD_ACTION, __NAMESPACE__ . '\process_csv_upload' );
 add_action( 'admin_post_' . IMPORT_OR_KILL_ACTION, __NAMESPACE__ . '\import_or_kill_data' );
-add_action( CRON_ACTION, __NAMESPACE__ . '\cron_runner' );
+add_action( CRON_ACTION, __NAMESPACE__ . '\cron_runner', 10, 2 );
 add_action( 'admin_menu', __NAMESPACE__ . '\register_menu_items' );

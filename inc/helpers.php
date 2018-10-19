@@ -29,7 +29,7 @@ function load_importer( $slug ) {
 		'import_callback'  => null,
 	] );
 
-	if ( ! current_user_can( $importer['capability'] ) && ! wp_doing_cron() ) {
+	if ( ! current_user_can( $importer['capability'] ) ) {
 		wp_die( esc_html__( 'Sorry, you are not allowed to run CSV imports.', 'csv-import-framework' ) );
 	}
 
