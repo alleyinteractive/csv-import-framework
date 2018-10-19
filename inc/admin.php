@@ -22,7 +22,7 @@ function register_menu_items() {
 		__( 'Import Content', 'csv-import-framework' ),
 		__( 'Import Content', 'csv-import-framework' ),
 		'edit_posts',
-		'csv-import',
+		MENU_SLUG,
 		'__return_false',
 		'dashicons-migrate',
 		null
@@ -30,7 +30,7 @@ function register_menu_items() {
 
 	foreach ( $importers as $importer ) {
 		add_submenu_page(
-			'csv-import',
+			MENU_SLUG,
 			$importer['name'],
 			$importer['name'],
 			$importer['capability'] ?? 'edit_posts',
@@ -40,8 +40,7 @@ function register_menu_items() {
 	}
 
 	// The top-level menu item for 'Import Content' is bogus, so remove it.
-	if ( isset( $submenu['csv-import'] ) ) {
-		array_shift( $submenu['csv-import'] );
+	if ( isset( $submenu[ MENU_SLUG ] ) ) {
+		array_shift( $submenu[ MENU_SLUG ] );
 	}
 }
-add_action( 'admin_menu', __NAMESPACE__ . '\register_menu_items' );

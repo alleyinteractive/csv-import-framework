@@ -7,8 +7,6 @@
 
 namespace CSV_Import_Framework;
 
-const DEFAULT_IMPORT_CAPABILITY = 'manage_csv_imports';
-
 /**
  * Setup the main functionality of the plugin.
  */
@@ -137,4 +135,3 @@ class Main {
 		return $required_caps;
 	}
 }
-add_action( 'after_setup_theme', [ __NAMESPACE__ . '\Main', 'instance' ] );

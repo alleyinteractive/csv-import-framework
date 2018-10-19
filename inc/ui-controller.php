@@ -7,59 +7,11 @@
 
 namespace CSV_Import_Framework;
 
-const UPLOAD_ACTION = 'csvif-upload';
-const IMPORT_OR_KILL_ACTION = 'csvif-process-data';
-
-add_action( 'csv_import_framework_delete_data', __NAMESPACE__ . '\delete_csv_post', 100 );
-add_action( 'admin_post_' . UPLOAD_ACTION, __NAMESPACE__ . '\process_csv_upload' );
-add_action( 'admin_post_' . IMPORT_OR_KILL_ACTION, __NAMESPACE__ . '\import_or_kill_data' );
-
-/**
- * Find an importer by its slug, check the current user's capabilities, and hook
- * up the relevant callbacks.
- *
- * @param string $slug Importer slug.
- * @return array|false Importer data on success, false on failure.
- */
-function load_importer( $slug ) {
-	$importer = Main::instance()->get_importer( $slug );
-	if ( ! $importer ) {
-		return false;
-	}
-
-	$importer = wp_parse_args( $importer, [
-		'capability'       => DEFAULT_IMPORT_CAPABILITY,
-		'preview_callback' => __NAMESPACE__ . '\default_preview',
-		'cancel_callback'  => null,
-		'import_callback'  => null,
-	] );
-
-	if ( ! current_user_can( $importer['capability'] ) ) {
-		wp_die( esc_html__( 'Sorry, you are not allowed to run CSV imports.', 'csv-import-framework' ) );
-	}
-
-	// Hook in the preview handler.
-	add_action( 'csv_import_framework_preview', $importer['preview_callback'] );
-
-	// Hook in the cancel handler, if present.
-	if ( is_callable( $importer['cancel_callback'] ) ) {
-		add_action( 'csv_import_framework_delete_data', $importer['cancel_callback'], 10, 2 );
-	}
-
-	// Hook in the import handler, if present.
-	if ( is_callable( $importer['import_callback'] ) ) {
-		add_action( 'csv_import_framework_import_data', $importer['import_callback'], 10, 2 );
-	}
-
-	return $importer;
-}
-
 /**
  * Dispatch an importer.
  */
 function dispatch_importer() {
-	$importer_slug = str_replace( 'import-content_page_csv-importer-', '', current_action() );
-	$importer = load_importer( $importer_slug );
+	$importer = load_importer( current_action() );
 	if ( empty( $importer ) ) {
 		wp_die( esc_html__( 'That importer was not found! Please go back and try again.', 'csv-import-framework' ) );
 	}
@@ -136,6 +88,8 @@ function process_csv_upload() {
  * @param string $file          An array of data for a single file.
  */
 function store_csv_upload( $move_new_file, $file ) {
+	$page = ! empty( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : ''; // wpcs: csrf ok.
+
 	// Read the CSV into JSON to store, which should be more resiliant.
 	$filehandle = fopen( $file['tmp_name'], 'r' );
 	$header = fgetcsv( $filehandle );
@@ -180,16 +134,10 @@ function store_csv_upload( $move_new_file, $file ) {
 	unlink( $file['tmp_name'] );
 
 	// Copy the contents of the file into a new post, then delete the file.
-	$result = wp_insert_post(
-		[
-			'post_type'    => POST_TYPE,
-			'post_title'   => sprintf( '%s - %s', $file['name'], time() ),
-			'post_author'  => get_current_user_id(),
-			'post_status'  => 'draft',
-			// We addslashes() here because wp_insert_post() will run wp_unslash().
-			'post_content' => addslashes( wp_json_encode( $json ) ),
-		],
-		true
+	$result = CSV_Post::create(
+		sprintf( '%s - %s', $file['name'], time() ), // title.
+		$json, // data.
+		parse_importer_slug( $page ) // importer slug.
 	);
 
 	if ( is_wp_error( $result ) ) {
@@ -201,7 +149,6 @@ function store_csv_upload( $move_new_file, $file ) {
 	}
 
 	// Success! Redirect to the next step in the process.
-	$page = ! empty( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : ''; // wpcs: csrf ok.
 	wp_redirect( get_page_url( $page, [ 'csv_id' => $result ] ) );
 	exit;
 }
@@ -254,12 +201,16 @@ function import_or_kill_data() {
 		wp_die( esc_html__( 'That request is not valid, please go back and try again.', 'csv-import-framework' ) );
 	}
 
-	$post = get_post( absint( $_POST['csv_id'] ) );
-	if ( ! $post instanceof \WP_Post || POST_TYPE !== $post->post_type ) {
+	$csv_post = CSV_Post::load( absint( $_POST['csv_id'] ) );
+	if ( ! $csv_post ) {
 		wp_die( esc_html__( 'Something went wrong, that is an invalid CSV import ID. Please try again.', 'csv-import-framework' ) );
 	}
 
 	$page = sanitize_text_field( wp_unslash( $_POST['slug'] ) );
+	$importer = load_importer( $page );
+	if ( empty( $importer ) ) {
+		wp_die( esc_html__( 'That importer was not found! Please go back and try again.', 'csv-import-framework' ) );
+	}
 
 	if ( ! empty( $_POST['cancel'] ) ) {
 		/**
@@ -269,45 +220,14 @@ function import_or_kill_data() {
 		 * @param string   $page The current import page, which contains the
 		 *                       importer slug.
 		 */
-		do_action( 'csv_import_framework_delete_data', $post, $page );
+		do_action( 'csv_import_framework_cancel_import', $csv_post->get_post(), $page );
 		$msg = 'cancel';
 	} elseif ( ! empty( $_POST['import'] ) ) {
-		/**
-		 * Trigger the import process for a CSV import.
-		 *
-		 * @param \WP_Post $post Post object for the CSV data.
-		 * @param string   $page The current import page, which contains the
-		 *                       importer slug.
-		 */
-		do_action( 'csv_import_framework_import_data', $post, $page );
+		schedule_runner( $csv_post->get_id() );
+		$csv_post->start_import();
 		$msg = 'success';
 	}
 
 	wp_redirect( get_page_url( $page, compact( 'msg' ) ) );
 	exit;
-}
-
-/**
- * Delete a CSV Import post object.
- *
- * @param \WP_Post $post Post object.
- * @return bool True on success, false on failure.
- */
-function delete_csv_post( \WP_Post $post ) {
-	if ( POST_TYPE === $post->post_type ) {
-		return (bool) wp_delete_post( $post->ID );
-	}
-	return false;
-}
-
-/**
- * Helper to get a page URL against admin.php.
- *
- * @param string $page       Page to load (page param in URL).
- * @param array  $query_args Optional. Additional query args for URL.
- * @return string Admin page URL.
- */
-function get_page_url( $page, array $query_args = [] ) {
-	$query_args['page'] = $page;
-	return add_query_arg( $query_args, admin_url( 'admin.php' ) );
 }
