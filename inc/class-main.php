@@ -129,6 +129,10 @@ class Main {
 	 */
 	public function import_capability( $required_caps, $cap ) {
 		if ( DEFAULT_IMPORT_CAPABILITY === $cap ) {
+			$remove_cap = array_search( DEFAULT_IMPORT_CAPABILITY, $required_caps );
+			if ( false !== $remove_cap ) {
+				unset( $required_caps[ $remove_cap ] );
+			}
 			$required_caps[] = 'upload_files';
 			$required_caps[] = 'edit_posts';
 		}
