@@ -23,8 +23,8 @@ if ( ! empty( $importer_headers ) ) {
 					printf(
 						// translators: %1$s importer headers, %2$s CSV header.
 						esc_html__( 'Expected header label "%1$s", but found "%2$s".', 'csv-import-framework' ),
-						esc_html( $header[ $index ] ),
-						esc_html( $importer['headers'][ $index ] )
+						esc_html( $importer['headers'][ $index ] ),
+						esc_html( $header[ $index ] )
 					);
 					?>
 				</li>
@@ -38,18 +38,17 @@ if ( ! empty( $importer_headers ) ) {
 <table class="widefat striped">
 	<thead>
 		<tr>
-			<th>
-				<?php
-				foreach ( $header as $index => $label ) {
-					if ( isset( $diff[ $index ] ) ) {
-						echo '</th><th style="color: red; font-weight: bold;">';
-					} else {
-						echo '</th><th>';
-					}
-					echo esc_html( $label );
+			<?php
+			foreach ( $header as $index => $label ) {
+				if ( isset( $diff[ $index ] ) ) {
+					echo '<th style="color: red; font-weight: bold;">';
+				} else {
+					echo '<th>';
 				}
-				?>
-			</th>
+				echo esc_html( $label );
+				echo '</th>';
+			}
+			?>
 		</tr>
 	</thead>
 	<tbody>
