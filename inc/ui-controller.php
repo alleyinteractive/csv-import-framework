@@ -180,10 +180,10 @@ function do_preview( $post_id, array $importer ) {
  * to be imported.
  *
  * @param \WP_Post $post Post object.
+ * @param array    $importer Importer.
  */
 function default_preview( \WP_Post $post, array $importer ) {
-	// print_r($importer); die();
-	$data = json_decode( $post->post_content, true );
+	$data   = json_decode( $post->post_content, true );
 	$header = array_shift( $data );
 
 	// Load the default preview table view.
