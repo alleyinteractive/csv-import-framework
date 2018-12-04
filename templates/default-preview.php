@@ -23,8 +23,8 @@ if ( ! empty( $importer_headers ) ) {
 					printf(
 						// translators: %1$s importer headers, %2$s CSV header.
 						esc_html__( 'Expected header label "%1$s", but found "%2$s".', 'csv-import-framework' ),
-						esc_html( $importer['headers'][ $index ] ),
-						esc_html( $header[ $index ] )
+						esc_html( $header[ $index ] ),
+						esc_html( $importer['headers'][ $index ] )
 					);
 					?>
 				</li>
