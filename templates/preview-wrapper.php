@@ -27,7 +27,7 @@
 		 *
 		 * @param \WP_Post $post Post object for the CSV data.
 		 */
-		do_action( 'csv_import_framework_preview', $post );
+		do_action( 'csv_import_framework_preview', $post, $importer );
 		?>
 
 		<p class="submit">
