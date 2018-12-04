@@ -34,7 +34,7 @@ function load_importer( $slug ) {
 	}
 
 	// Hook in the preview handler.
-	add_action( 'csv_import_framework_preview', $importer['preview_callback'] );
+	add_action( 'csv_import_framework_preview', $importer['preview_callback'], 10, 2 );
 
 	// Hook in the cancel handler, if present.
 	if ( is_callable( $importer['cancel_callback'] ) ) {

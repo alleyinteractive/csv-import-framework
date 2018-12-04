@@ -169,6 +169,7 @@ function do_preview( $post_id, array $importer ) {
 	$form_url = admin_url( 'admin-post.php' );
 	$action = IMPORT_OR_KILL_ACTION;
 	$csv_id = $post->ID;
+	$headers = $importer['headers'] ?? '';
 
 	// Load the preview wrapper template.
 	include PATH . '/templates/preview-wrapper.php';
@@ -180,7 +181,8 @@ function do_preview( $post_id, array $importer ) {
  *
  * @param \WP_Post $post Post object.
  */
-function default_preview( \WP_Post $post ) {
+function default_preview( \WP_Post $post, array $importer ) {
+	// print_r($importer); die();
 	$data = json_decode( $post->post_content, true );
 	$header = array_shift( $data );
 
