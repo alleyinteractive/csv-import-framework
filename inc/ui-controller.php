@@ -96,11 +96,13 @@ function store_csv_upload( $move_new_file, $file ) {
 	$page = ! empty( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : ''; // wpcs: csrf ok.
 
 	// Read the CSV into JSON to store, which should be more resiliant.
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 	$filehandle      = fopen( $file['tmp_name'], 'r' );
 	$header          = fgetcsv( $filehandle );
 	$col_expectation = count( $header );
 	$json            = [ $header ];
 	$row             = 1;
+	// phpcs:ignore
 	while ( false !== ( $data = fgetcsv( $filehandle ) ) ) { // @codingStandardsIgnoreLine
 		$row++;
 		try {
@@ -128,7 +130,8 @@ function store_csv_upload( $move_new_file, $file ) {
 				)
 			);
 		}
-	} // End while().
+	} // End while() loop.
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 	fclose( $filehandle );
 
 	/**
@@ -140,6 +143,7 @@ function store_csv_upload( $move_new_file, $file ) {
 	$json = apply_filters( 'csv_import_framework_pre_save_data', $json, $file );
 
 	// Delete the uploaded file.
+	// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink
 	unlink( $file['tmp_name'] );
 
 	// Copy the contents of the file into a new post, then delete the file.
