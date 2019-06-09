@@ -16,18 +16,21 @@ namespace CSV_Import_Framework;
  * @return array|false Importer data on success, false on failure.
  */
 function load_importer( $slug ) {
-	$slug = parse_importer_slug( $slug );
+	$slug     = parse_importer_slug( $slug );
 	$importer = Main::instance()->get_importer( $slug );
 	if ( ! $importer ) {
 		return false;
 	}
 
-	$importer = wp_parse_args( $importer, [
-		'capability'       => DEFAULT_IMPORT_CAPABILITY,
-		'preview_callback' => __NAMESPACE__ . '\default_preview',
-		'cancel_callback'  => null,
-		'import_callback'  => null,
-	] );
+	$importer = wp_parse_args(
+		$importer,
+		[
+			'capability'       => DEFAULT_IMPORT_CAPABILITY,
+			'preview_callback' => __NAMESPACE__ . '\default_preview',
+			'cancel_callback'  => null,
+			'import_callback'  => null,
+		] 
+	);
 
 	if ( ! current_user_can( $importer['capability'] ) ) {
 		wp_die( esc_html__( 'Sorry, you are not allowed to run CSV imports.', 'csv-import-framework' ) );

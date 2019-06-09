@@ -29,4 +29,4 @@
 </div>
 
 <?php
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require ABSPATH . 'wp-admin/admin-footer.php';
