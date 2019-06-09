@@ -129,7 +129,7 @@ class Main {
 	 */
 	public function import_capability( $required_caps, $cap ) {
 		if ( DEFAULT_IMPORT_CAPABILITY === $cap ) {
-			$remove_cap = array_search( DEFAULT_IMPORT_CAPABILITY, $required_caps );
+			$remove_cap = array_search( DEFAULT_IMPORT_CAPABILITY, $required_caps, true );
 			if ( false !== $remove_cap ) {
 				unset( $required_caps[ $remove_cap ] );
 			}

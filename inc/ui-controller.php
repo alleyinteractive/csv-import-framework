@@ -5,6 +5,8 @@
  * @package CSV_Import_Framework
  */
 
+//phpcs:disable WordPress.Security.NonceVerification.NoNonceVerification,WordPressVIPMinimum.Variables.VariableAnalysis.UnusedVariable,WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
+
 namespace CSV_Import_Framework;
 
 /**
@@ -75,7 +77,7 @@ function process_csv_upload() {
 			'mimes' => [
 				'csv' => 'text/csv',
 			],
-		] 
+		]
 	);
 }
 
@@ -111,7 +113,7 @@ function store_csv_upload( $move_new_file, $file ) {
 						$row,
 						count( $data ),
 						$col_expectation
-					) 
+					)
 				);
 			}
 
@@ -123,7 +125,7 @@ function store_csv_upload( $move_new_file, $file ) {
 					'<h1>%s</h1><p>%s</p>',
 					esc_html__( 'Error parsing CSV!', 'csv-import-framework' ),
 					esc_html( $e->getMessage() )
-				) 
+				)
 			);
 		}
 	} // End while().
@@ -154,13 +156,13 @@ function store_csv_upload( $move_new_file, $file ) {
 					/* translators: %s: Error message */
 					__( 'There was an error saving the CSV data: %s', 'csv-import-framework' ),
 					$result->get_error_message()
-				) 
-			) 
+				)
+			)
 		);
 	}
 
 	// Success! Redirect to the next step in the process.
-	wp_redirect( get_page_url( $page, [ 'csv_id' => $result ] ) );
+	wp_safe_redirect( get_page_url( $page, [ 'csv_id' => $result ] ) );
 	exit;
 }
 
@@ -241,6 +243,6 @@ function import_or_kill_data() {
 		$msg = 'success';
 	}
 
-	wp_redirect( get_page_url( $page, compact( 'msg' ) ) );
+	wp_safe_redirect( get_page_url( $page, compact( 'msg' ) ) );
 	exit;
 }
