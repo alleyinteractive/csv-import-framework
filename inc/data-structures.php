@@ -22,7 +22,7 @@ function setup_data_structures() {
 		[
 			'public'     => false,
 			'can_export' => false,
-		] 
+		]
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\setup_data_structures' );

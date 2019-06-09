@@ -29,7 +29,7 @@ function load_importer( $slug ) {
 			'preview_callback' => __NAMESPACE__ . '\default_preview',
 			'cancel_callback'  => null,
 			'import_callback'  => null,
-		] 
+		]
 	);
 
 	if ( ! current_user_can( $importer['capability'] ) ) {
