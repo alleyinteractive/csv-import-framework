@@ -19,6 +19,8 @@
 		<input type="hidden" name="slug" value="<?php echo esc_attr( $slug ); ?>" />
 		<?php wp_nonce_field( 'upload-csv', 'upload_nonce' ); ?>
 
+		<?php do_action( 'csv_import_framework_upload_form_fields' ); ?>
+
 		<p>
 			<label for="csv-upload-field"><?php esc_html_e( 'Select CSV file to upload', 'csv-import-framework' ); ?></label>
 			<input type="file" name="csv_upload" id="csv-upload-field" />
