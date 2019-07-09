@@ -148,6 +148,14 @@ function store_csv_upload( $move_new_file, $file ) {
 		) ) );
 	}
 
+	/**
+	 * Fire an action after we have saved the CSV.
+	 *
+	 * @param int    $result CSV_Post ID.
+	 * @param string $page   Page to redirect to.
+	 */
+	do_action( 'csv_import_framework_post_save_data', $result, $page );
+
 	// Success! Redirect to the next step in the process.
 	wp_redirect( get_page_url( $page, [ 'csv_id' => $result ] ) );
 	exit;
