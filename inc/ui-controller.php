@@ -5,6 +5,8 @@
  * @package CSV_Import_Framework
  */
 
+//phpcs:disable WordPress.Security.NonceVerification.NoNonceVerification,WordPressVIPMinimum.Variables.VariableAnalysis.UnusedVariable,WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
+
 namespace CSV_Import_Framework;
 
 /**
@@ -30,11 +32,11 @@ function dispatch_importer() {
  */
 function do_upload_form( array $importer ) {
 	// Setup template variables.
-	$name = $importer['name'];
-	$slug = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+	$name     = $importer['name'];
+	$slug     = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 	$form_url = admin_url( 'admin-post.php' );
-	$action = UPLOAD_ACTION;
-	$message = '';
+	$action   = UPLOAD_ACTION;
+	$message  = '';
 	if ( ! empty( $_GET['msg'] ) ) {
 		switch ( $_GET['msg'] ) { // wpcs: sanitization ok.
 			case 'cancel':
@@ -69,11 +71,14 @@ function process_csv_upload() {
 	// This filter will save the CSV data and then ultimately kill the request.
 	add_filter( 'pre_move_uploaded_file', __NAMESPACE__ . '\store_csv_upload', 10, 2 );
 
-	$result = wp_handle_upload( $file, [
-		'mimes' => [
-			'csv' => 'text/csv',
-		],
-	] );
+	$result = wp_handle_upload(
+		$file,
+		[
+			'mimes' => [
+				'csv' => 'text/csv',
+			],
+		]
+	);
 }
 
 /**
@@ -91,35 +96,42 @@ function store_csv_upload( $move_new_file, $file ) {
 	$page = ! empty( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : ''; // wpcs: csrf ok.
 
 	// Read the CSV into JSON to store, which should be more resiliant.
-	$filehandle = fopen( $file['tmp_name'], 'r' );
-	$header = fgetcsv( $filehandle );
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+	$filehandle      = fopen( $file['tmp_name'], 'r' );
+	$header          = fgetcsv( $filehandle );
 	$col_expectation = count( $header );
-	$json = [ $header ];
-	$row = 1;
+	$json            = [ $header ];
+	$row             = 1;
+	// phpcs:ignore
 	while ( false !== ( $data = fgetcsv( $filehandle ) ) ) { // @codingStandardsIgnoreLine
 		$row++;
 		try {
 			// Validate the data from the CSV row.
 			if ( count( $data ) > $col_expectation ) {
-				throw new \Exception( sprintf(
-					/* translators: %1$d: row number, %2$d: number of columns in row, %3$d: expected number of columns */
-					__( 'Row %1$d has %2$d columns, expecting %3$d or fewer columns', 'csv-import-framework' ),
-					$row,
-					count( $data ),
-					$col_expectation
-				) );
+				throw new \Exception(
+					sprintf(
+						/* translators: %1$d: row number, %2$d: number of columns in row, %3$d: expected number of columns */
+						__( 'Row %1$d has %2$d columns, expecting %3$d or fewer columns', 'csv-import-framework' ),
+						$row,
+						count( $data ),
+						$col_expectation
+					)
+				);
 			}
 
 			// Data looks good!
 			$json[] = $data;
 		} catch ( \Exception $e ) {
-			wp_die( sprintf(
-				'<h1>%s</h1><p>%s</p>',
-				esc_html__( 'Error parsing CSV!', 'csv-import-framework' ),
-				esc_html( $e->getMessage() )
-			) );
+			wp_die(
+				sprintf(
+					'<h1>%s</h1><p>%s</p>',
+					esc_html__( 'Error parsing CSV!', 'csv-import-framework' ),
+					esc_html( $e->getMessage() )
+				)
+			);
 		}
-	} // End while().
+	} // End while() loop.
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 	fclose( $filehandle );
 
 	/**
@@ -131,6 +143,7 @@ function store_csv_upload( $move_new_file, $file ) {
 	$json = apply_filters( 'csv_import_framework_pre_save_data', $json, $file );
 
 	// Delete the uploaded file.
+	// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink
 	unlink( $file['tmp_name'] );
 
 	// Copy the contents of the file into a new post, then delete the file.
@@ -141,11 +154,15 @@ function store_csv_upload( $move_new_file, $file ) {
 	);
 
 	if ( is_wp_error( $result ) ) {
-		wp_die( esc_html( sprintf(
-			/* translators: %s: Error message */
-			__( 'There was an error saving the CSV data: %s', 'csv-import-framework' ),
-			$result->get_error_message()
-		) ) );
+		wp_die(
+			esc_html(
+				sprintf(
+					/* translators: %s: Error message */
+					__( 'There was an error saving the CSV data: %s', 'csv-import-framework' ),
+					$result->get_error_message()
+				)
+			)
+		);
 	}
 
 	/**
@@ -157,7 +174,7 @@ function store_csv_upload( $move_new_file, $file ) {
 	do_action( 'csv_import_framework_post_save_data', $result, $page );
 
 	// Success! Redirect to the next step in the process.
-	wp_redirect( get_page_url( $page, [ 'csv_id' => $result ] ) );
+	wp_safe_redirect( get_page_url( $page, [ 'csv_id' => $result ] ) );
 	exit;
 }
 
@@ -172,12 +189,12 @@ function do_preview( $post_id, array $importer ) {
 	if ( ! $post instanceof \WP_Post ) {
 		wp_die( esc_html__( 'Invalid CSV ID', 'csv-import-framework' ) );
 	}
-	$name = $importer['name'];
-	$slug = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+	$name     = $importer['name'];
+	$slug     = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 	$form_url = admin_url( 'admin-post.php' );
-	$action = IMPORT_OR_KILL_ACTION;
-	$csv_id = $post->ID;
-	$headers = $importer['headers'] ?? '';
+	$action   = IMPORT_OR_KILL_ACTION;
+	$csv_id   = $post->ID;
+	$headers  = $importer['headers'] ?? '';
 
 	// Load the preview wrapper template.
 	include PATH . '/templates/preview-wrapper.php';
@@ -216,7 +233,7 @@ function import_or_kill_data() {
 		wp_die( esc_html__( 'Something went wrong, that is an invalid CSV import ID. Please try again.', 'csv-import-framework' ) );
 	}
 
-	$page = sanitize_text_field( wp_unslash( $_POST['slug'] ) );
+	$page     = sanitize_text_field( wp_unslash( $_POST['slug'] ) );
 	$importer = load_importer( $page );
 	if ( empty( $importer ) ) {
 		wp_die( esc_html__( 'That importer was not found! Please go back and try again.', 'csv-import-framework' ) );
@@ -238,6 +255,6 @@ function import_or_kill_data() {
 		$msg = 'success';
 	}
 
-	wp_redirect( get_page_url( $page, compact( 'msg' ) ) );
+	wp_safe_redirect( get_page_url( $page, compact( 'msg' ) ) );
 	exit;
 }

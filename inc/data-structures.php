@@ -17,9 +17,12 @@ const POST_TYPE = 'csvif-data';
  */
 function setup_data_structures() {
 	// Register the hidden post type that holds the csv data.
-	register_post_type( POST_TYPE, [
-		'public'     => false,
-		'can_export' => false,
-	] );
+	register_post_type(
+		POST_TYPE,
+		[
+			'public'     => false,
+			'can_export' => false,
+		]
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\setup_data_structures' );

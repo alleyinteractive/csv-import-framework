@@ -45,14 +45,14 @@ class CSV_Post {
 	 * @param \WP_Post $post Post object for a CSV post.
 	 */
 	public function __construct( $post ) {
-		$this->post = $post;
-		$this->data = json_decode( $this->post->post_content, true );
-		$this->header = array_shift( $this->data );
+		$this->post          = $post;
+		$this->data          = json_decode( $this->post->post_content, true );
+		$this->header        = array_shift( $this->data );
 		$default_import_meta = [
 			'current_row' => 0,
 			'running'     => false,
 		];
-		$this->import_meta = wp_parse_args(
+		$this->import_meta   = wp_parse_args(
 			get_post_meta( $this->post->ID, 'import_meta', true ),
 			$default_import_meta
 		);

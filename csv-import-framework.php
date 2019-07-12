@@ -12,6 +12,8 @@
  * @package         CSV_Import_Framework
  */
 
+// phpcs:disable WordPressVIPMinimum.Constants.ConstantString.NotCheckingConstantName
+
 namespace CSV_Import_Framework;
 
 // Define constants for use throughout the plugin.
