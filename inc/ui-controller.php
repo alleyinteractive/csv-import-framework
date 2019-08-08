@@ -91,10 +91,8 @@ function store_csv_upload( $move_new_file, $file ) {
 	$page = ! empty( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : ''; // wpcs: csrf ok.
 
 	// Read the CSV into JSON to store, which should be more resiliant.
-	ini_set( 'auto_detect_line_endings', true );
 	$filehandle = fopen( $file['tmp_name'], 'r' );
 	$header = fgetcsv( $filehandle );
-	ini_set( 'auto_detect_line_endings', false );
 	$col_expectation = count( $header );
 	$json = [ $header ];
 	$row = 1;
