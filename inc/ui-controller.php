@@ -90,6 +90,15 @@ function process_csv_upload() {
 function store_csv_upload( $move_new_file, $file ) {
 	$page = ! empty( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : ''; // wpcs: csrf ok.
 
+	/**
+	 * This handles line endings that don't get parsed correctly. This is
+	 * mostly an issue with older mac versions where the EOL character is \r.
+	 * We replace it with \r\n so that fgetcsv parses the file correctly.
+	 */
+	$content = file_get_contents( $file['tmp_name'] );
+	$content = str_replace( "\r", "\r\n", $content );
+	file_put_contents( $file['tmp_name'], $content ); // @codingStandardsIgnoreLine
+
 	// Read the CSV into JSON to store, which should be more resiliant.
 	$filehandle = fopen( $file['tmp_name'], 'r' );
 	$header = fgetcsv( $filehandle );
