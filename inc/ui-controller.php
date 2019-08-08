@@ -96,7 +96,7 @@ function store_csv_upload( $move_new_file, $file ) {
 	 * We replace it with \r\n so that fgetcsv parses the file correctly.
 	 */
 	$content = file_get_contents( $file['tmp_name'] );
-	$content = str_replace( "\r", "\r\n", $content );
+	$content = preg_replace('~\r\n?~', "\n", $content );
 	file_put_contents( $file['tmp_name'], $content ); // @codingStandardsIgnoreLine
 
 	// Read the CSV into JSON to store, which should be more resiliant.
