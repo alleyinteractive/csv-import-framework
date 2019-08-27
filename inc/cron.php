@@ -35,7 +35,7 @@ function cron_runner( $csv_id, $user_id ) {
 
 	$complete_import = false;
 	if ( $csv_post->has_more_rows() ) {
-		$batch_size = get_cron_batch_size( $importer );
+		$batch_size = get_cron_batch_size( $importer['slug'] );
 		$rows = $csv_post->get_next_batch( $batch_size );
 
 		/**
