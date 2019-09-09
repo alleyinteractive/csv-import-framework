@@ -85,7 +85,7 @@ function process_csv_upload() {
  * @throws \Exception If CSV data is invalid.
  *
  * @param string $move_new_file If null (default) move the file after the upload.
- * @param string $file          An array of data for a single file.
+ * @param array  $file          An array of data for a single file.
  */
 function store_csv_upload( $move_new_file, $file ) {
 	$page = ! empty( $_POST['slug'] ) ? sanitize_text_field( wp_unslash( $_POST['slug'] ) ) : ''; // wpcs: csrf ok.
